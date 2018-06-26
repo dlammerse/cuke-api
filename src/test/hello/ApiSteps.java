@@ -30,7 +30,7 @@ public class ApiSteps {
         String url = "http://localhost:8080/messages";
         response = ApiClient.GET(url);
         JSONParser jsonParser = new JSONParser();
-        JSONArray jarray = (JSONArray) jsonParser.parse(response);
+        JSONObject jarray = (JSONObject) jsonParser.parse(response);
     }
 
     @Then("^the response shows multiple messages$")

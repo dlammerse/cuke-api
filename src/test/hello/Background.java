@@ -5,6 +5,7 @@ package hello; /**
 import cucumber.api.PendingException;
 import cucumber.api.java.en.Given;
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import java.io.BufferedReader;
@@ -23,18 +24,22 @@ public class Background {
         headers.put("Content-Type", "application/json");
         String getResponse = ApiClient.GET(url);
         JSONParser jsonParser = new JSONParser();
-        JSONArray jArray = (JSONArray) jsonParser.parse(getResponse);
-        if (jArray.size() > numberOfMessages){
+        JSONObject jObject = (JSONObject) jsonParser.parse(getResponse);
+        JSONArray jArray = (JSONArray) jObject.get("messages");
+        if (jArray.size() < numberOfMessages){
             for (int i = 1; i <= numberOfMessages-jArray.size(); i++) {
                 String body = "{\"subject\": \"onderwerp" + i + "\",\"body\": \"body" + i + "\"}";
                 ApiClient.POST(url, body, headers);
             }
         }
-        else if(jArray.size() < numberOfMessages){
+        else if(jArray.size() > numberOfMessages){
             for (int i = 1; i <= jArray.size() -numberOfMessages; i++) {
-                String body = "{\"subject\": \"onderwerp" + i + "\",\"body\": \"body" + i + "\"}";
-                ApiClient.POST(url, body, headers);
+                String idToDelete = (String) ((JSONObject)jArray.get(i)).get("id");
+                ApiClient.DELETE(url + "/" + idToDelete, headers);
             }
+        }
+        else{
+            //right number of messages are there
         }
     }
 
