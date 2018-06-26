@@ -24,7 +24,7 @@ public class ApiSteps {
     @Then("^the response shows multiple messages$")
     public void theResponseShowsMultipleMessages() throws Throwable {
         System.out.println("response = " + response);
-        JsonObject jsonObj = new JsonObject (response);
+//        JsonObject jsonObj = new JsonObject (response);
         System.out.println("response = " + response.toString());
         System.out.println("lengte = "  + response.length());
         System.out.println("1234c wfsadf asd f");
