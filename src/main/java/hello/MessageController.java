@@ -1,46 +1,53 @@
 package hello;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import javax.websocket.server.PathParam;
 import java.util.*;
 
 @RestController
 public class MessageController {
 
-    private static HashMap<String, Message> messageList = new HashMap();
+//    private static HashMap<String, Message> messages = new HashMap();
+    private static Messages messages = new Messages();
 
     @RequestMapping("/messages")
-    public Collection<Message> get() {
-        return messageList.values();
+    @ResponseStatus(HttpStatus.OK)
+    public Messages get() {
+        return messages;
     }
 
     @RequestMapping("/messages/{id}")
-    public Message get(@PathVariable("id") String uuid) {
-        return messageList.get(uuid);
+    @ResponseStatus(HttpStatus.OK)
+    public Message get(@PathVariable("id") String uuid) throws Exception {
+        return messages.get(uuid);
     }
 
     @RequestMapping(value="/messages", method = RequestMethod.POST)
-    public Message post(@RequestBody Message message) {
+    @ResponseStatus(HttpStatus.OK)
+    public Message post(@RequestBody Message message) throws Exception {
         int uuidLength = 4;
         String uuid = generateUUID(uuidLength);
-        while (messageList.get(uuid) != null){
+        while (messages.get(uuid) != null){
             uuid = generateUUID(uuidLength);
         }
         message.setId(uuid);
-        messageList.put(message.getId(), message);
+        messages.put(message.getId(), message);
         return message;
     }
 
     @RequestMapping(value="/messages/{id}", method = RequestMethod.PUT)
+    @ResponseStatus(HttpStatus.OK)
     public Message put(@PathVariable("id") String uuid, @RequestBody Message message) {
         message.setId(uuid);
-        messageList.put(uuid, message);
+        messages.put(uuid, message);
         return message;
     }
     @RequestMapping(value="/messages/{id}", method = RequestMethod.DELETE)
-    public void delete(@PathVariable("id") String uuid) {
-        messageList.remove(uuid);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable("id") String uuid) throws Exception {
+        messages.remove(uuid);
         return;
     }
 

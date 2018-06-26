@@ -4,6 +4,8 @@ package hello; /**
 
 import cucumber.api.PendingException;
 import cucumber.api.java.en.Given;
+import org.json.simple.JSONArray;
+import org.json.simple.parser.JSONParser;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -20,10 +22,19 @@ public class Background {
         Map<String, String> headers = new HashMap<String, String>();
         headers.put("Content-Type", "application/json");
         String getResponse = ApiClient.GET(url);
-        // TODO: read out get response to see how much need to be added
-        for (int i = 1; i <= numberOfMessages; i++) {
-            String body = "{\"subject\": \"onderwerp" + i + "\",\"body\": \"body" + i + "\"}";
-            ApiClient.POST(url, body, headers);
+        JSONParser jsonParser = new JSONParser();
+        JSONArray jArray = (JSONArray) jsonParser.parse(getResponse);
+        if (jArray.size() > numberOfMessages){
+            for (int i = 1; i <= numberOfMessages-jArray.size(); i++) {
+                String body = "{\"subject\": \"onderwerp" + i + "\",\"body\": \"body" + i + "\"}";
+                ApiClient.POST(url, body, headers);
+            }
+        }
+        else if(jArray.size() < numberOfMessages){
+            for (int i = 1; i <= jArray.size() -numberOfMessages; i++) {
+                String body = "{\"subject\": \"onderwerp" + i + "\",\"body\": \"body" + i + "\"}";
+                ApiClient.POST(url, body, headers);
+            }
         }
     }
 
