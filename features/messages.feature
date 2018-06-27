@@ -6,4 +6,5 @@ Feature: Api test messages application
 
   Scenario: Get messages
     When I call get messages
-    Then the response shows multiple messages
+    Then the response shows 10 messages
+    And every messages has an id, subject and body

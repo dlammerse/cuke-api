@@ -1,6 +1,9 @@
 package hello;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import cucumber.api.PendingException;
+import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -11,8 +14,10 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.junit.Assert;
 
 import javax.json.JsonObject;
+import java.util.Iterator;
 
 
 /**
@@ -21,6 +26,7 @@ import javax.json.JsonObject;
 public class ApiSteps {
 
     private String response;
+    private JSONParser jsonParser = new JSONParser();
 
 
 
@@ -29,16 +35,25 @@ public class ApiSteps {
     public void iCallGetMessages() throws Throwable {
         String url = "http://localhost:8080/messages";
         response = ApiClient.GET(url);
-        JSONParser jsonParser = new JSONParser();
-        JSONObject jarray = (JSONObject) jsonParser.parse(response);
     }
 
-    @Then("^the response shows multiple messages$")
-    public void theResponseShowsMultipleMessages() throws Throwable {
-        System.out.println("response = " + response);
-//        JsonObject jsonObj = new JsonObject (response);
-        System.out.println("response = " + response.toString());
-        System.out.println("lengte = "  + response.length());
-        System.out.println("1234c wfsadf asd f");
+    @Then("^the response shows (\\d+) messages$")
+    public void theResponseShowsMultipleMessages(int expectedNumberOfMessages) throws Throwable {
+        JSONArray messagesArray = (JSONArray) ((JSONObject) jsonParser.parse(response)).get("messages");
+        Assert.assertEquals(expectedNumberOfMessages,messagesArray.size());
+    }
+
+    @And("^every messages has an id, subject and body$")
+    public void everyMessagesHasAnIdSubjectAndBody() throws Throwable {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode node = mapper.readTree(response);
+        Iterator<JsonNode> messageIterator = node.path("messages").elements();
+        while (messageIterator.hasNext()) {
+            JsonNode currentNode = messageIterator.next();
+            int expectedIdSize = 4;
+            Assert.assertEquals(expectedIdSize,currentNode.path("id").textValue().length());
+            Assert.assertFalse(currentNode.path("subject").textValue().isEmpty());
+            Assert.assertFalse(currentNode.path("body").textValue().isEmpty());
+        }
     }
 }
