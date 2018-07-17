@@ -2,6 +2,8 @@ package hello; /**
  * Created by dlammers on 07-Nov-17.
  */
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import cucumber.api.PendingException;
 import cucumber.api.java.en.Given;
 import org.json.simple.JSONArray;
@@ -13,28 +15,32 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 
 public class Background {
     @Given("^make sure (\\d+) standard (?:messages|message) is available$")
-    public void iCreatedStandardMessages(int numberOfMessages) throws Throwable {
+    public void iCreatedStandardMessages(int requiredNumberOfMessages) throws Throwable {
         String url = "http://localhost:8080/messages";
         Map<String, String> headers = new HashMap<String, String>();
         headers.put("Content-Type", "application/json");
+        ObjectMapper mapper = new ObjectMapper();
         String getResponse = ApiClient.GET(url);
-        JSONParser jsonParser = new JSONParser();
-        JSONObject jObject = (JSONObject) jsonParser.parse(getResponse);
-        JSONArray jArray = (JSONArray) jObject.get("messages");
-        if (jArray.size() < numberOfMessages){
-            for (int i = 1; i <= numberOfMessages-jArray.size(); i++) {
+        JsonNode node = mapper.readTree(getResponse);
+        JsonNode messagesNode = node.path("messages");
+        Iterator<JsonNode> messageIterator = messagesNode.elements();
+        int currentNumberOfMessages = messagesNode.size();
+        if(messageIterator.hasNext())
+        if (currentNumberOfMessages < requiredNumberOfMessages){
+            for (int i = 1; i <= requiredNumberOfMessages-currentNumberOfMessages; i++) {
                 String body = "{\"subject\": \"onderwerp" + i + "\",\"body\": \"body" + i + "\"}";
                 ApiClient.POST(url, body, headers);
             }
         }
-        else if(jArray.size() > numberOfMessages){
-            for (int i = 1; i <= jArray.size() -numberOfMessages; i++) {
-                String idToDelete = (String) ((JSONObject)jArray.get(i)).get("id");
+        else if(currentNumberOfMessages > requiredNumberOfMessages){
+            for (int i = 1; i <= currentNumberOfMessages -requiredNumberOfMessages; i++) {
+                String idToDelete = messagesNode.path(i).path("id").asText();
                 ApiClient.DELETE(url + "/" + idToDelete, headers);
             }
         }
