@@ -9,6 +9,7 @@ import cucumber.api.java.en.Given;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.junit.Assert;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -26,12 +27,11 @@ public class Background {
         Map<String, String> headers = new HashMap<String, String>();
         headers.put("Content-Type", "application/json");
         ObjectMapper mapper = new ObjectMapper();
-        String getResponse = ApiClient.GET(url);
+        String getResponse = ApiClient.GET(url).response();
         JsonNode node = mapper.readTree(getResponse);
         JsonNode messagesNode = node.path("messages");
         Iterator<JsonNode> messageIterator = messagesNode.elements();
         int currentNumberOfMessages = messagesNode.size();
-        if(messageIterator.hasNext())
         if (currentNumberOfMessages < requiredNumberOfMessages){
             for (int i = 1; i <= requiredNumberOfMessages-currentNumberOfMessages; i++) {
                 String body = "{\"subject\": \"onderwerp" + i + "\",\"body\": \"body" + i + "\"}";
@@ -68,6 +68,11 @@ public class Background {
         while((outputApiProcess= inputApiProcess.readLine()) != null){
             if (outputApiProcess.contains("Started Application in")){
                 System.out.println("API is started");
+                return;
+            }
+            else if (outputApiProcess.contains("APPLICATION FAILED TO START")){
+                System.out.println("API failed to start");
+//                Assert.fail();
                 return;
             }
         }

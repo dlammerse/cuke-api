@@ -1,9 +1,6 @@
 package hello;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
@@ -14,7 +11,7 @@ import java.util.Map;
  */
 public class ApiClient {
 
-    public static String POST(String targetURL, String body, Map<String,String> headers) {
+    public static ResponseObject POST(String targetURL, String body, Map<String,String> headers) {
 
         HttpURLConnection connection = null;
 
@@ -40,16 +37,9 @@ public class ApiClient {
             wr.close();
 
             //Get Response
-            InputStream is = connection.getInputStream();
-            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-            StringBuilder response = new StringBuilder(); // or StringBuffer if Java version 5+
-            String line;
-            while ((line = rd.readLine()) != null) {
-                response.append(line);
-                response.append('\r');
-            }
-            rd.close();
-            return response.toString();
+
+            ResponseObject responseObject = new ResponseObject(connection);
+            return responseObject;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -60,13 +50,13 @@ public class ApiClient {
         }
     }
 
-    public static String GET(String targetURL) {
+    public static ResponseObject GET(String targetURL) {
         Map<String, String> headers = new HashMap<String, String>();
         headers.put("Content-Type", "application/json");
         return GET(targetURL,headers);
     }
 
-    public static String GET(String targetURL,Map<String,String> headers) {
+    public static ResponseObject GET(String targetURL,Map<String,String> headers) {
         HttpURLConnection connection = null;
 
         try {
@@ -88,18 +78,10 @@ public class ApiClient {
 //                    connection.getOutputStream());
 //            wr.writeBytes(body);
 //            wr.close();
+            ResponseObject responseObject = new ResponseObject(connection);
+            return responseObject;
 
-            //Get Response
-            InputStream is = connection.getInputStream();
-            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-            StringBuilder response = new StringBuilder(); // or StringBuffer if Java version 5+
-            String line;
-            while ((line = rd.readLine()) != null) {
-                response.append(line);
-                response.append('\r');
-            }
-            rd.close();
-            return response.toString();
+
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -110,7 +92,9 @@ public class ApiClient {
         }
     }
 
-    public static String DELETE(String targetURL, Map<String, String> headers) {
+
+
+    public static ResponseObject DELETE(String targetURL, Map<String, String> headers) {
         HttpURLConnection connection = null;
 
         try {
@@ -133,17 +117,8 @@ public class ApiClient {
 //            wr.writeBytes(body);
 //            wr.close();
 
-            //Get Response
-            InputStream is = connection.getInputStream();
-            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-            StringBuilder response = new StringBuilder(); // or StringBuffer if Java version 5+
-            String line;
-            while ((line = rd.readLine()) != null) {
-                response.append(line);
-                response.append('\r');
-            }
-            rd.close();
-            return response.toString();
+            ResponseObject responseObject = new ResponseObject(connection);
+            return responseObject;
         } catch (Exception e) {
             e.printStackTrace();
             return null;

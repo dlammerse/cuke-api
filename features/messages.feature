@@ -8,3 +8,8 @@ Feature: Api test messages application
     When I call get messages
     Then the response shows 10 messages
     And every messages has an id, subject and body
+
+  Scenario: Post messages
+    When I call post messages
+    Then the posted message is returned when I call a get messages
+
