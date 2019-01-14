@@ -81,8 +81,8 @@ public class Background {
 
     private String getFileToExecute() throws FileNotFoundException {
 
-        String targetFileString = "target/gs-spring-boot-0.1.0.jar";
-        String fixedFileString = "gs-spring-boot-0.1.0.jar";
+        String targetFileString = "target/gs-spring-boot-0.1.1.jar";
+        String fixedFileString = "resources/gs-spring-boot-0.1.0.jar";
         File targetFile = new File(targetFileString);
         File fixedFile = new File(fixedFileString);
         String fileToExecute;
