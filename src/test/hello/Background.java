@@ -11,10 +11,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.junit.Assert;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -62,7 +59,10 @@ public class Background {
                 return;
             }
         }
-        Process apiProcess = Runtime.getRuntime().exec("java -jar target/gs-spring-boot-0.1.0.jar");
+        String fileToExecute = getFileToExecute();
+
+
+        Process apiProcess = Runtime.getRuntime().exec("java -jar " + fileToExecute);
         BufferedReader inputApiProcess = new BufferedReader(new InputStreamReader(apiProcess.getInputStream()));
         String outputApiProcess = null;
         while((outputApiProcess= inputApiProcess.readLine()) != null){
@@ -77,5 +77,24 @@ public class Background {
             }
         }
 
+    }
+
+    private String getFileToExecute() throws FileNotFoundException {
+
+        String targetFileString = "target/gs-spring-boot-0.1.0.jar";
+        String fixedFileString = "gs-spring-boot-0.1.0.jar";
+        File targetFile = new File(targetFileString);
+        File fixedFile = new File(fixedFileString);
+        String fileToExecute;
+        if(targetFile.exists() && !targetFile.isDirectory()) {
+             fileToExecute= targetFileString;
+        }
+        else if (fixedFile.exists() && !fixedFile.isDirectory()) {
+            fileToExecute= fixedFileString;
+        }
+        else{
+            throw new FileNotFoundException();
+        }
+        return fileToExecute;
     }
 }
